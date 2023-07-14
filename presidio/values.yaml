@@ -1,0 +1,71 @@
+registry: mcr.microsoft.com
+name: app
+app_group: redaction
+tag_name: dev
+
+# Image pull secret
+# privateRegistry: acr-auth
+tag: latest
+
+# supported types are nginx (wip: traefik and istio)
+ingress:
+  enabled: true
+  class: nginx
+
+# For any of the services below, a service mesh like Linkerd or Istio
+# is needed to properly balance traffic to more than 1 replica.
+# https://github.com/microsoft/presidio/issues/304
+
+analyzer:
+  name: presidio-analyzer
+  replicas: 1
+  imagePullPolicy: Always
+  container:
+    resources:
+      requests:
+        memory: "628Mi"
+        cpu: "200m"
+      limits:
+        memory: "2012Mi"
+        cpu: "400m"
+  service:
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8080
+    name: http
+
+anonymizer:
+  name: presidio-anonymizer
+  replicas: 1
+  imagePullPolicy: Always
+  container:
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "400m"
+  service:
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8080
+    name: http
+
+anonymizerimage:
+  name: presidio-image-redactor
+  replicas: 1
+  imagePullPolicy: Always
+  container:
+    resources:
+      requests:
+        memory: "250Mi"
+        cpu: "50m"
+      limits:
+        memory: "500Mi"
+        cpu: "100m"
+  service:
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8080
+    name: http

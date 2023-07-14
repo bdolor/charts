@@ -1,0 +1,33 @@
+{{- if and (.Values.ingress.enabled) (eq .Values.ingress.class "nginx") -}}
+{{- $analyzerfullname := include "presidio.analyzer.fullname" . -}}
+{{- $anonymizerfullname := include "presidio.anonymizer.fullname" . -}}
+{{- $anonymizerimagefullname := include "presidio.anonymizerimage.fullname" . -}}
+
+apiVersion: v1
+kind: Route
+metadata:
+  labels:
+    app: {{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}
+    app-group: {{ .Values.app_group }}
+    template: {{ .Values.name }}-deploy
+  name: {{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}
+spec:
+  host: {{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}.apps.silver.devops.gov.bc.ca
+  path: /analyze(/|$)(.*)
+  port:
+    targetPort: 80-tcp
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: {{ $analyzerfullname }}
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+  - conditions:
+    - status: "True"
+      type: Admitted
+    host: {{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}.apps.silver.devops.gov.bc.ca
+    routerName: router
+    wildcardPolicy: None

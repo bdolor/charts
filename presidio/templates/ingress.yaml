@@ -1,0 +1,46 @@
+{{- if and (.Values.ingress.enabled) (eq .Values.ingress.class "nginx") -}}
+{{- $analyzerfullname := include "presidio.analyzer.fullname" . -}}
+{{- $anonymizerfullname := include "presidio.anonymizer.fullname" . -}}
+{{- $anonymizerimagefullname := include "presidio.anonymizerimage.fullname" . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: presidio-ingress
+  labels:
+    app: presidio-ingress
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.class }}
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+    route.openshift.io/termination: "edge"
+spec:
+  rules:
+    - host: {{ .Release.Name }}.apps.silver.devops.gov.bc.ca
+      http:
+        paths:
+        - backend:
+            service:
+             name: {{ $analyzerfullname }}
+             port:
+              number: {{ .Values.analyzer.service.externalPort }}
+          path: /analyze(/|$)(.*)
+          pathType: Prefix
+        - backend:
+            service:
+             name: {{ $anonymizerfullname }}
+             port:
+               number: 80
+          path: /anonymize(/|$)(.*)
+          pathType: Prefix
+        - backend:
+            service:
+              name: {{ $anonymizerimagefullname }}
+              port:
+                number: 80
+          path: /anonymizeimage(/|$)(.*)
+          pathType: Prefix
+  tls:
+    - {}
+{{- end -}}
