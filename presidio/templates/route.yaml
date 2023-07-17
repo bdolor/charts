@@ -13,8 +13,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  host: {{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}.apps.silver.devops.gov.bc.ca
-  path:  /analyze
+  host: analyze-{{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}.apps.silver.devops.gov.bc.ca
   to:
     kind: Service
     name: {{ $analyzerfullname }}
@@ -35,8 +34,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  host:  {{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}.apps.silver.devops.gov.bc.ca
-  path:  /anonymize
+  host:  anonymize-{{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}.apps.silver.devops.gov.bc.ca
   to:
     kind: Service
     name: {{ $anonymizerfullname }}
@@ -57,8 +55,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  host:  {{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}.apps.silver.devops.gov.bc.ca
-  path: /anonymizeimage
+  host:  anonymizeimage-{{ .Values.name }}-{{ .Values.app_group }}-{{ .Values.tag_name }}.apps.silver.devops.gov.bc.ca
   to:
     kind: Service
     name: {{ $anonymizerimagefullname }}
